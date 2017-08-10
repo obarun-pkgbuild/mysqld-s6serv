@@ -1,0 +1,11 @@
+#!/usr/local/bin/execlineb -P
+if -n { s6-test -d /run/mysqld }
+foreground {
+	if { mkdir -p -m 0755 /run/mysqld }
+	chown mysql:mysql /run/mysqld
+}
+fdmove -c 2 1
+s6-setuidgid mysql
+exec -c
+/usr/bin/mysqld --pid-file=/run/mysqld/mysqld.pid 
+
