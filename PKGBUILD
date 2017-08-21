@@ -14,6 +14,7 @@ source=('mysqld.daemon.run.s6'
 		'LICENSE')
 md5sums=('a0de584f8a4d06072f2fe26e3c59dd47'
          'c77dd78d7d260d527b538923b854c987'
+         '8e314c18d20cb9cd79422eb445a3a411'
          '191a37ae657aa17e37e75d0242865dba')
 
 package() {
