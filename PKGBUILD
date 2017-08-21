@@ -2,15 +2,15 @@
 
 pkgname=mysqld-s6serv
 pkgver=0.1
-pkgrel=2
+pkgrel=3
 pkgdesc="mysqld service for s6"
 arch=(x86_64)
 license=('beerware')
 depends=('mariadb' 's6' 's6-rc' 's6-boot')
 conflicts=()
-install=mysqld-s6serv.install
 source=('mysqld.daemon.run.s6'
 		'mysqld.log.run.s6'
+		'mysqld.logd'
 		'LICENSE')
 md5sums=('a0de584f8a4d06072f2fe26e3c59dd47'
          'c77dd78d7d260d527b538923b854c987'
@@ -23,6 +23,7 @@ package() {
 	
 	# log
 	install -Dm 0755 "$srcdir/mysqld.log.run.s6" "$pkgdir/etc/s6-serv/available/classic/mysqld/log/run"
+	install -Dm 0644 "$srcdir/mysqld.logd" "$pkgdir/etc/s6-serv/log.d/mysqld"
 	
 	install -Dm 0755 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/mysqld-s6serv/LICENSE"
 }
