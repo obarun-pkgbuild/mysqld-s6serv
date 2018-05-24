@@ -1,0 +1,18 @@
+#!@BINDIR_EXECLINE@/execlineb -P
+fdmove -c 2 1
+foreground {
+	foreground {
+		if -n { s6-test -d /run/mysqld }
+		if { mkdir -p -m 0755 /run/mysqld }
+		chown mysql:mysql /run/mysqld
+	}
+	foreground {
+		if -n { s6-test -d /var/lib/mysql }
+		if { mkdir -p -m 0700 /var/lib/mysql }
+		chown mysql:mysql /var/lib/mysql
+	}
+}
+fdmove -c 2 1
+s6-setuidgid mysql
+exec -c
+/usr/bin/mysqld --pid-file=/run/mysqld/mysqld.pid 

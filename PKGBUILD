@@ -1,30 +1,42 @@
 # Maintainer: Eric Vidal <eric@obarun.org>
 
-pkgname=mysqld-s6serv
-pkgver=0.1
-pkgrel=3
-pkgdesc="mysqld service for s6"
+pkgbase=mysqld
+_depends=mariadb
+pkgname="${pkgbase}"-s6serv
+pkgver=0.2
+pkgrel=1
+pkgdesc="${pkgbase} service for s6"
 arch=(x86_64)
-license=('beerware')
-depends=('mariadb' 's6' 's6-rc' 's6-boot')
+license=('ISC')
+depends=("${_depends}" 's6' 's6-boot' 's6opts')
+makedepends=('util-linux' 'findutils')
 conflicts=()
-source=('mysqld.daemon.run.s6'
-		'mysqld.log.run.s6'
-		'mysqld.logd'
-		'LICENSE')
-md5sums=('a0de584f8a4d06072f2fe26e3c59dd47'
-         'c77dd78d7d260d527b538923b854c987'
-         '8e314c18d20cb9cd79422eb445a3a411'
-         '191a37ae657aa17e37e75d0242865dba')
+source=("$pkgname::git+https://github.com/obarun-pkgbuild/${pkgname}#branch=master")
+md5sums=('SKIP')
+validpgpkeys=('6DD4217456569BA711566AC7F06E8FDE7B45DAAC') # Eric Vidal
 
-package() {
+prepare(){
+	cd "${pkgname}"
 	
-	# daemon
-	install -Dm 0755 "$srcdir/mysqld.daemon.run.s6" "$pkgdir/etc/s6-serv/available/classic/mysqld/run"
+	sed -i "s:base:${pkgbase}:g" Makefile
 	
-	# log
-	install -Dm 0755 "$srcdir/mysqld.log.run.s6" "$pkgdir/etc/s6-serv/available/classic/mysqld/log/run"
-	install -Dm 0644 "$srcdir/mysqld.logd" "$pkgdir/etc/s6-serv/log.d/mysqld"
+	if [[ -d base ]]; then
+		find -type d -name 'base' | rename base "${pkgbase}" * 
+		for i in */log/logd */log/run; do
+			sed -i "s:base:${pkgbase}:g" $i 
+		done
+	fi
+	# user
+	if [[ -d user ]]; then
+		find user/classic -type d -name 'base' | rename base "${pkgbase}" user/classic/*
+		for i in user/classic/*/log/logd user/classic/*/log/run; do
+			sed -i "s:base:${pkgbase}:g" $i 
+		done
+	fi
+}
+package(){
+	cd "${pkgname}"
 	
-	install -Dm 0755 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/mysqld-s6serv/LICENSE"
+	make DESTDIR="$pkgdir" install
+	
 }
